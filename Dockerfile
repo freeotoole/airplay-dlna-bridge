@@ -16,7 +16,9 @@ RUN apt-get update && \
 
 COPY start.sh /start.sh
 COPY shairport-sync.conf.tmpl /shairport-sync.conf.tmpl
+COPY debug.sh /debug.sh
 RUN chmod +x /start.sh
+RUN chmod +x /debug.sh
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD bash -lc 'pgrep -x shairport-sync >/dev/null && pgrep -f pulseaudio-dlna >/dev/null'

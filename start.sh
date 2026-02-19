@@ -33,6 +33,9 @@ mkdir -p /run/pulse
 chmod 755 /run/pulse
 export PULSE_RUNTIME_PATH=/run/pulse
 
+# Ensure clients use the system-mode socket
+export PULSE_SERVER=/run/pulse/native
+
 # Create pulseaudio config for system mode
 cat > /etc/pulse/system.pa <<'EOF'
 load-module module-native-protocol-unix auth-anonymous=1 socket=/run/pulse/native
