@@ -104,6 +104,7 @@ while ! pactl list short sinks | grep -q .; do
   sleep 1
   wait_seconds=$((wait_seconds+1))
 
+done
 
 DLNA_ARGS=(
   --encoder "${DLNA_ENCODER}"
