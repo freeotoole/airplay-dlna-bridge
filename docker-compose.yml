@@ -1,0 +1,15 @@
+services:
+  airplay-dlna-bridge:
+    build: .
+    container_name: airplay-dlna-bridge
+    network_mode: host
+    privileged: true
+    environment:
+      TZ: Australia/Sydney
+      AIRPLAY_NAME: "Unraid AirPlay"
+      # AIRPLAY_PASSWORD: "optionalpassword"
+      DLNA_STREAM_NAME: "Unraid AirPlay → WiiM"
+      DLNA_ENCODER: "wav"   # wav = uncompressed, flac = lossless + safer over WiFi
+      DLNA_RENDERER: "WiiM" # optional substring to target only the WiiM renderer
+      DLNA_TTL: "60"
+    restart: unless-stopped

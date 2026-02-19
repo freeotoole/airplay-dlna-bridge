@@ -1,0 +1,36 @@
+general =
+{
+  name = "${AIRPLAY_NAME}";
+  interpolation = "soxr";
+  output_backend = "pa";
+  drift_tolerance_in_seconds = 0.002;
+  log_verbosity = "${LOG_LEVEL}";
+};
+
+diagnostics =
+{
+  statistics = "yes";
+};
+
+sessioncontrol =
+{
+  # Optional password (blank = disabled)
+  password = "${AIRPLAY_PASSWORD}";
+};
+
+alsa =
+{
+  # not used with PulseAudio backend, left here harmlessly
+};
+
+pa =
+{
+  server = "";
+  sink = "";
+};
+
+latency =
+{
+  # Optional extra latency in seconds (0 by default)
+  audio_backend_latency_offset_in_seconds = ${AIRPLAY_LATENCY_SECONDS};
+};
