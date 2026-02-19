@@ -75,9 +75,18 @@ done
 echo "[bridge] Ensuring a default sink exists (load null sink if needed)"
 # Create a null sink so shairport-sync has a default sink when no ALSA devices present
 if ! pactl list short sinks | grep -q .; then
-  echo "[bridge] No sinks found, loading null sink 'airplay_null'"
-  pactl load-module module-null-sink sink_name=airplay_null sink_properties=device.description="AirPlay Null Sink" || true
-  pactl set-default-sink airplay_null || true
+  echo "[bridge] No sinks found, attempting to load null sink 'airplay_null'"
+  for attempt in 1 2 3 4 5; do
+    module_index=$(pactl load-module module-null-sink sink_name=airplay_null sink_properties=device.description="AirPlay Null Sink" 2>&1 || true)
+    if echo "$module_index" | grep -q '^[0-9]\+'; then
+      echo "[bridge] Loaded null sink (module index: ${module_index})"
+      pactl set-default-sink airplay_null || true
+      break
+    else
+      echo "[bridge] Failed to load null sink (attempt ${attempt}/5): ${module_index}"
+      sleep 1
+    fi
+  done
 fi
 
 echo "[bridge] Current sinks:"
