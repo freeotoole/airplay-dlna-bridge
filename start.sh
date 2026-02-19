@@ -72,6 +72,17 @@ done
 # ----------------------------
 # Start pulseaudio-dlna
 # ----------------------------
+echo "[bridge] Ensuring a default sink exists (load null sink if needed)"
+# Create a null sink so shairport-sync has a default sink when no ALSA devices present
+if ! pactl list short sinks | grep -q .; then
+  echo "[bridge] No sinks found, loading null sink 'airplay_null'"
+  pactl load-module module-null-sink sink_name=airplay_null sink_properties=device.description="AirPlay Null Sink" || true
+  pactl set-default-sink airplay_null || true
+fi
+
+echo "[bridge] Current sinks:"
+pactl list short sinks || true
+
 DLNA_ARGS=(
   --encoder "${DLNA_ENCODER}"
   --ssdp-ttl "${DLNA_TTL}"
