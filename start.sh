@@ -47,7 +47,6 @@ EOF
 echo "[bridge] Starting PulseAudio in system mode..."
 pulseaudio --system \
   --disallow-exit \
-  --disallow-module-loading \
   --exit-idle-time=-1 \
   --log-target=stderr \
   --daemonize=yes
