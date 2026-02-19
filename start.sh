@@ -92,6 +92,19 @@ fi
 echo "[bridge] Current sinks:"
 pactl list short sinks || true
 
+# Wait for at least one sink to exist before starting pulseaudio-dlna
+wait_seconds=0
+max_wait=15
+while ! pactl list short sinks | grep -q .; do
+  if [ $wait_seconds -ge $max_wait ]; then
+    echo "[bridge] No sinks after ${max_wait}s — will still start pulseaudio-dlna but it may ignore PulseAudio until sinks appear"
+    break
+  fi
+  echo "[bridge] Waiting for sinks to appear... (${wait_seconds}/${max_wait})"
+  sleep 1
+  wait_seconds=$((wait_seconds+1))
+
+
 DLNA_ARGS=(
   --encoder "${DLNA_ENCODER}"
   --ssdp-ttl "${DLNA_TTL}"
@@ -108,9 +121,19 @@ echo "[bridge] Starting pulseaudio-dlna: encoder=${DLNA_ENCODER}, renderers='${D
 pulseaudio-dlna "${DLNA_ARGS[@]}" &
 DLNA_PID=$!
 
-# Wait a moment for sinks to appear
+# Give pulseaudio-dlna a few seconds to detect sinks
 sleep 2
 
+# If pulseaudio-dlna started with no sinks, try restarting it once more after sinks appear
+if ! pactl list short sinks | grep -q .; then
+  echo "[bridge] pulseaudio-dlna started but still no sinks; attempting to load null sink and restart pulseaudio-dlna"
+  pactl load-module module-null-sink sink_name=airplay_null sink_properties=device.description="AirPlay Null Sink" || true
+  pactl set-default-sink airplay_null || true
+  sleep 1
+  pkill -f pulseaudio-dlna || true
+  pulseaudio-dlna "${DLNA_ARGS[@]}" &
+  DLNA_PID=$!
+fi
 # ----------------------------
 # Generate shairport-sync config
 # ----------------------------
